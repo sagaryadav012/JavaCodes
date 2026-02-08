@@ -1,0 +1,108 @@
+
+
+
+
+-> Stream is a sequence of elements that supports functional style operations
+-> Stream doesn't store data, it only process data.
+
+Features :
+Declarative: Write concise and readable code using functional style.
+Lazy Evaluation: Operations are executed only when needed (terminal operation).
+Parallel Execution: Supports parallel streams to leverage multi-core processors.
+No Storage: Streams don’t store data; they only process it.
+
+Intermediate Operations :
+Intermediate operations transform a stream into another stream. Some common intermediate operations include:
+
+filter(): Filters elements based on a specified condition.
+map(): Transforms each element in a stream to another value.
+Sorted(): Sorts the elements of a stream.
+Distinct(): Remove duplicates.
+Skip(): Skip first n elements.
+
+
+Terminal Operations :
+Terminal Operations are the operations that on execution return a final result as an absolute value.
+
+ForEach(): It iterates all the elements in a stream.
+collect(Collectors.toList()): It collects stream elements into a list (or other collections like set/map).
+Reduce(): It reduces stream elements into a single aggregated result.
+count(): It returns the total number of elements in a stream.
+anyMatch() / allMatch() / noneMatch(): They check whether elements match a given condition.
+findFirst() / findAny(): They return the first or any element from a stream.
+
+
+Types of Streams :
+1. Sequential Stream: A stream that processes elements in a sequential manner(One by one).
+2. Parallel Stream: A stream that processes elements in parallel, leveraging multiple CPU cores for improved performance.
+Parallel streams can be created using the parallelStream() method or by calling the parallel() method on an existing stream.
+3. Infinite Stream: A stream that generates an infinite number of elements. It can be created using the Stream.generate() or Stream.iterate() methods.
+4. Primitive Streams: Specialized streams for handling primitive data types (IntStream, LongStream, DoubleStream) to avoid the overhead of boxing and unboxing.
+
+list.parallelStream()
+list.stream().parallel()
+
+How many threads are used in a parallel stream?
+-> The number of threads used in a parallel stream is determined by the Java ForkJoinPool, which by default uses
+   a number of threads equal to the number of available processors (CPU cores) on the machine minus one (available processors - 1) java keeps one thread free for main/OS.
+-> You can customize the number of threads used by parallel streams by setting the system property "java.util.concurrent.ForkJoinPool.common.parallelism" to the
+   desired number of threads.
+-> For example, to set the parallelism level to 4, you can use the following code:
+   System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "4");
+-> Check ForkJoinInfo and CustomForkJoinPool classes for more details on customizing thread usage in parallel streams.
+
+Primitive Streams :
+-> Primitive streams like IntStream avoid boxing and unboxing by operating directly on primitive values, improving performance and reducing memory overhead.
+-> Java provides three primitive stream interfaces: IntStream, LongStream, and DoubleStream.
+-> We can create streams on List of Integer or Long or Double. so why we need primitive streams?
+
+-> Primitive streams are needed to avoid boxing and unboxing conversions. since these conversions take CPU time and memory,
+using primitive streams can improve performance when working with large datasets of primitive types.
+
+How it's taking CPU time and memory?
+-> First lets understand what boxing and unboxing is:
+-> Boxing is the process of converting a primitive type (like int, long, double) into its corresponding wrapper class (like Integer, Long, Double).
+    int a = 10;
+    Integer boxed = a;   // boxing
+-> Unboxing is the reverse process, where a wrapper class is converted back into its primitive type.
+    Integer boxed = 10;
+    int a = boxed;       // unboxing
+
+Problem with normal Stream<Integer> :
+
+List<Integer> list = List.of(1, 2, 3, 4, 5);
+int sum = list.stream()
+              .map(x -> x * 2)
+              .reduce(0, Integer::sum);
+
+What’s happening internally?
+For each element:
+Integer → int (unboxing) // unboxing happens to perform the math operation(+ - * /) on int or double or long
+Result → Integer (boxing)
+This repeats for every element.
+
+why above code is inefficient?
+There is no * operator for Integer objects.
+So when Java sees:
+x * 2
+and x is an Integer, it must do this internally:
+
+int temp = x.intValue();  // unboxing - Taking CPU time to convert Integer to primitive and also memory to store the unboxed value
+int result = temp * 2;    // arithmetic on primitive - Taking CPU time to perform the multiplication and also memory to store the result
+Integer boxed = Integer.valueOf(result); // boxing back - Taking CPU time to convert primitive back to Integer and also memory to store the boxed value
+
+✔ You are not choosing to unbox
+✔ Java is forced to unbox
+
+Same example using IntStream
+int sum = IntStream.of(1, 2, 3, 4, 5)
+                   .map(x -> x * 2)
+                   .sum();
+
+What changed?
+✔ No Integer objects
+✔ No boxing
+✔ No unboxing
+✔ Faster & memory-efficient
+
+-> Go and check StreamVsIntStream class for more examples and performance comparison between Stream<Integer> and IntStream.

@@ -5,6 +5,8 @@ import java.util.stream.IntStream;
 
 public class CustomForkJoinPool {
     static void main() {
+
+        // set the parallelism level to 4, which means the common pool will use at most 4 worker threads for parallel tasks
         System.setProperty(
                 "java.util.concurrent.ForkJoinPool.common.parallelism", "4"
         );

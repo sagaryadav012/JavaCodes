@@ -51,7 +51,7 @@ public class ForkJoinInfo {
 }
 
 /*
--> It's default ForkJoinPool, it creats threads based on the number of available processors (logical cores) minus one, to keep one core free for the main thread and OS tasks. The pool size can grow lazily as needed, but it won't exceed the parallelism level. After executing a parallel stream, you may see that some threads are still active or running, depending on how the tasks are scheduled and completed.
+-> It's default ForkJoinPool, it creates threads based on the number of available processors (logical cores) minus one, to keep one core free for the main thread and OS tasks. The pool size can grow lazily as needed, but it won't exceed the parallelism level. After executing a parallel stream, you may see that some threads are still active or running, depending on how the tasks are scheduled and completed.
 -> We can customize the ForkJoinPool by creating our own instance with a specific parallelism level,
 but the common pool is often sufficient for most use cases.
 The common pool is shared across the entire application,
